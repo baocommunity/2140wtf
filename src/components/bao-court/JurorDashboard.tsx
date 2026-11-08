@@ -11,6 +11,7 @@ import { useBaoCourtDisputes, type BaoCourtDispute } from "@/hooks/useBaoCourtDi
 import { useBaoCourtSelection } from "@/hooks/useBaoCourtSelection";
 import { DisputeCard } from "./DisputeCard";
 import { JurorRegistrationCard } from "./JurorRegistrationCard";
+import { JurorOnboardingCard } from "./JurorOnboardingCard";
 import { JurorSessionModal } from "./JurorSessionModal";
 import { JurorSettings, type JurorSettingsState } from "./JurorSettings";
 import { DemoCourtLobby } from "./DemoCourtLobby";
@@ -37,6 +38,7 @@ export function JurorDashboard({ settings, onSettingsChange }: JurorDashboardPro
   const { data: disputes = [], isLoading } = useBaoCourtDisputes();
   const [selectedDispute, setSelectedDispute] = useState<BaoCourtDispute | null>(null);
   const [demoSession, setDemoSession] = useState<DemoSession | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(settings.demoMode ? 'lobby' : 'disputes');
   const [sessionOpen, setSessionOpen] = useState(false);
 
   const realSelection = useBaoCourtSelection(selectedDispute?.disputeId);
@@ -73,7 +75,7 @@ export function JurorDashboard({ settings, onSettingsChange }: JurorDashboardPro
   }, [demoSession, selectedDispute, realSelection.selectedJurors, realSelection.myJurorIdx]);
 
   return (
-    <Tabs defaultValue={settings.demoMode ? "lobby" : "disputes"} className="w-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-3">
         {settings.demoMode ? (
           <TabsTrigger value="lobby" className="gap-2">
@@ -161,15 +163,7 @@ export function JurorDashboard({ settings, onSettingsChange }: JurorDashboardPro
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-dashed">
-            <CardContent className="py-12 px-8 text-center">
-              <p className="text-muted-foreground max-w-sm mx-auto">
-                You're not on a jury right now. {settings.demoMode
-                  ? 'Join a room from the Practice Lobby tab to try it out.'
-                  : 'Pick a dispute from the Open Disputes tab to start voting.'}
-              </p>
-            </CardContent>
-          </Card>
+          <JurorOnboardingCard onJoin={() => setActiveTab(settings.demoMode ? 'lobby' : 'disputes')} />
         )}
       </TabsContent>
 
